@@ -5,10 +5,13 @@ window.onload = function () {
 
 function getRoomRate(event) {
   event.preventDefault();
+  console.log(event);
   const booking = {};
 
-  // get check in date
+  // Get check in date
   booking.checkInDate = new Date(document.getElementById("dateField").value);
+  // Check season based on month of check in date
+  const checkInMonth = booking.checkInDate.getMonth() + 1; //January is 0
 
   //Define room rates
   const rates = {
@@ -39,9 +42,6 @@ function getRoomRate(event) {
     booking.roomType = "suite";
   }
 
-  // Check season based on month of check in date
-  const checkInMonth = booking.checkInDate.getMonth() + 1; //January is 0
-
   // Determine rate based on season and room type
   booking.rate =
     checkInMonth >= 6 && checkInMonth <= 8
@@ -50,23 +50,44 @@ function getRoomRate(event) {
 
   // Get number of nights
   booking.numberOfNights = document.getElementById("numberOfNightsField").value;
-  console.log(booking.numberOfNights);
+  
 
- 
+  // Get discount
+  let militaryDiscount = document.getElementById("militaryDiscount");
+  let aaaDiscount = document.getElementById("aaaDiscount");
+  let noneDiscount = document.getElementById("noneDiscount");
+  if (militaryDiscount.checked) {
+    booking.discountType = militaryDiscount.value;
+  } else if (aaaDiscount.checked) {
+    booking.discountType = aaaDiscount.value;
+  } else if (noneDiscount) {
+    booking.discountType = noneDiscount.value;
+  }
+  // Calculate discounted room cost
 
+  let totalDiscountedRoomCost =
+    (booking.rate - booking.rate * booking.discountType) *
+    booking.numberOfNights;
+
+  //Calculate tax
+  let taxCost = Number((totalDiscountedRoomCost * 0.12).toFixed(2));
   //Calculate Total cost
-  let totalCost = booking.rate * booking.numberOfNights;
-
-  console.log("This is booking object:", booking);
+  let totalCost = Number((totalDiscountedRoomCost + taxCost).toFixed(2));
 
   // Display Information
-document.getElementById("roomCostDisplay").innerText = `$${booking.rate}/night x ${booking.numberOfNights} nights`;
+  document.getElementById(
+    "roomCostDisplay"
+  ).innerText = `$${booking.rate}/night x ${booking.numberOfNights} nights`;
 
-  let totalCostDisplay = document.getElementById("totalCostDisplay").innerText = `$${totalCost}`;
+  document.getElementById("discountDisplay").innerText = `- $${
+    booking.discountType * booking.rate * booking.numberOfNights
+  } (${booking.discountType * 100}% off)`;
+
+  document.getElementById(
+    "discountRoomDisplay"
+  ).innerText = ` $${totalDiscountedRoomCost}  (${booking.numberOfNights} nights)`;
+
+  document.getElementById("taxDisplay").innerText = ` $${taxCost} (12%)`;
+
+  document.getElementById("totalCostDisplay").innerText = `$${totalCost}`;
 }
-
-
-  // Discount Values
-//   let militaryDiscount = document.getElementById("militaryDiscount").value;
-//   let aaaDiscount = document.getElementById("aaaDiscount").value;
-//   let noneDiscount = document.getElementById("noneDiscount").value;
